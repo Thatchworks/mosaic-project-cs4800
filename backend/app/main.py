@@ -1,4 +1,5 @@
 import sentry_sdk
+from datetime import datetime
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
@@ -19,6 +20,14 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
+
+
+@app.get("/time", tags=["utility"])
+async def get_current_time():
+    """Get the current server time."""
+    current_time = datetime.now()
+    return {"current_time": current_time.isoformat()}
+
 
 # Set all CORS enabled origins
 if settings.all_cors_origins:
