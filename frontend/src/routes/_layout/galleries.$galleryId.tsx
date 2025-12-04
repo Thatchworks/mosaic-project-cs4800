@@ -1,14 +1,18 @@
 import {
   Badge, Box, Button, Container,
   Flex, Grid, Heading, IconButton, Input, Stack, Text,
-  useDisclosure, Icon, FileUpload, Float, useFileUploadContext
+  useDisclosure, Icon, FileUpload, Float, useFileUploadContext,
+  DialogCloseTrigger,
+  CloseButton,
+  ActionBar,
+  Portal,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import type React from "react"
 import { useRef, useState } from "react"
 import { FiArrowLeft, FiCalendar, FiImage, FiUser } from "react-icons/fi"
-import { LuUpload, LuFileImage, LuX } from "react-icons/lu"
+import { LuUpload, LuFileImage, LuX, LuDownload, LuTrash, LuTrash2, LuShare } from "react-icons/lu"
 import { GalleriesService, OpenAPI, ProjectsService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -344,20 +348,38 @@ function GalleryDetail() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
-  const FileUploadList = () => {
+  // Dialog-specific upload area: hide dropzone when files are selected
+  const DialogUploadArea = () => {
     const fileUpload = useFileUploadContext()
     const files = fileUpload.acceptedFiles
-    if (files.length === 0) return null
+
+    if (files.length === 0) {
+      return (
+        <FileUpload.Dropzone
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          py={8}
+          w="100%"
+          minH="200px"
+          boxSizing="border-box"
+        >
+          <Icon size="md" color="fg.muted">
+            <LuUpload />
+          </Icon>
+          <FileUpload.DropzoneContent textAlign="center">
+            <Box>Drag and drop files or click to upload photos</Box>
+            <Box color="fg.muted">.png, .jpg , etc.</Box>
+          </FileUpload.DropzoneContent>
+        </FileUpload.Dropzone>
+      )
+    }
+
     return (
       <FileUpload.ItemGroup>
         {files.map((file) => (
-          <FileUpload.Item
-            w="auto"
-            boxSize="20"
-            p="2"
-            file={file}
-            key={file.name}
-          >
+          <FileUpload.Item w="auto" boxSize="40" p="3" file={file} key={file.name}>
             <FileUpload.ItemPreviewImage />
             <Float placement="top-end">
               <FileUpload.ItemDeleteTrigger boxSize="4" layerStyle="fill.solid">
@@ -384,7 +406,7 @@ function GalleryDetail() {
     return (
       <Flex gap={2}>
         <FileUpload.Trigger asChild>
-          
+          <Button> Choose files...</Button>
         </FileUpload.Trigger>
         {hasFiles && (
           <Button
@@ -642,14 +664,14 @@ function GalleryDetail() {
               onClick={onConfirmAllOpen}
               disabled={!hasPhotos}
             >
-              Download all photos
+              Download gallery
             </Button>
             <Button
               variant="outline"
               onClick={onDownloadSelected}
               disabled={!anySelected}
             >
-              Download selected
+             <LuDownload /> Download selected
             </Button>
             {isTeamMember && (
               <Button
@@ -663,13 +685,13 @@ function GalleryDetail() {
                 }}
                 disabled={!anySelected}
               >
-                Delete selected
+               <LuTrash /> Delete selected
               </Button>
             )}
           </Flex>
           {isTeamMember && (
             <>
-              <Button onClick={onUploadOpen}>Upload photos...</Button>
+              <Button onClick={onUploadOpen}><LuUpload /> Upload photos...</Button>
 
               <DialogRoot size="lg"
                 open={isUploadOpen}
@@ -687,22 +709,17 @@ function GalleryDetail() {
                     <FileUpload.Root maxFiles={MAX_PHOTOS} accept="image/*">
                       <FileUpload.HiddenInput />
 
-                      <FileUpload.Dropzone>
-                        <Icon size="md" color="fg.muted">
-                          <LuUpload />
-                        </Icon>
-                        <FileUpload.DropzoneContent>
-                          <Box>Drag and drop files or click to upload photos</Box>
-                          <Box color="fg.muted">.png, .jpg , etc.</Box>
-                        </FileUpload.DropzoneContent>
-                      </FileUpload.Dropzone>
+                      <DialogUploadArea />
 
-                      <FileUploadList />
-
-                      <Flex gap={2} mt={3} justifyContent="flex-end">
-                        <UploadButton />
-                        <Button onClick={onUploadClose}>Cancel</Button>
-                      </Flex>
+                      <DialogFooter>
+                        <Flex gap={2} w="100%" justifyContent="flex-end">
+                          <UploadButton />
+                          <Button onClick={onUploadClose}>Cancel</Button>
+                        </Flex>
+                      </DialogFooter>
+                      <DialogCloseTrigger>
+                        <CloseButton/>
+                      </DialogCloseTrigger>
                     </FileUpload.Root>
                   </DialogBody>
                 </DialogContent>
@@ -721,10 +738,10 @@ function GalleryDetail() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Download all photos</DialogTitle>
+              <DialogTitle>Download gallery</DialogTitle>
             </DialogHeader>
             <DialogBody>
-              Do you want to download all photos in this project gallery?
+              Do you want to download all the photos from this project gallery?
             </DialogBody>
             <DialogFooter>
               <Button ref={cancelRef} onClick={onConfirmAllClose}>
@@ -1020,10 +1037,10 @@ function GalleryDetail() {
                 style={{ margin: "0 auto", color: "#64748B" }}
               />
               <Text mt={4} color="#64748B">
-                No photos in this gallery yet
+                No photos have been uploaded yet.
               </Text>
               {isTeamMember && (
-                <Text mt={2} color="#64748B">
+                <Text fontWeight="light" mt={2} color="#64748B">
                   You can upload up to 20 photos.
                 </Text>
               )}
@@ -1034,6 +1051,41 @@ function GalleryDetail() {
         {gallery.status !== "draft" && gallery.status !== "processing" && (
           <ApprovalHistory gallery={gallery} />
         )}
+        {/* ActionBar: shows when one or more photos are selected */}
+        <ActionBar.Root open={anySelected} placement="bottom">
+          <Portal>
+            <ActionBar.Positioner>
+              <ActionBar.Content>
+                <ActionBar.SelectionTrigger>
+                  {Object.values(selected).filter(Boolean).length} selected
+                </ActionBar.SelectionTrigger>
+                <ActionBar.Separator />
+                {isTeamMember && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const ids = Object.entries(selected)
+                        .filter(([, v]) => v)
+                        .map(([k]) => k)
+                      if (ids.length > 0) deleteMutation.mutate(ids)
+                    }}
+                    border="error"
+                    color="border.error"
+
+
+                  >
+                    <LuTrash2 />
+                    Delete
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={onDownloadSelected} colorPalette="info">
+                  <LuDownload />Download
+                </Button>
+              </ActionBar.Content>
+            </ActionBar.Positioner>
+          </Portal>
+        </ActionBar.Root>
       </Stack>
     </Container>
   )
