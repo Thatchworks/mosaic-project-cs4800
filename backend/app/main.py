@@ -30,7 +30,13 @@ if settings.all_cors_origins:
         allow_origins=settings.all_cors_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        allow_headers=["Access-Control-Allow-Credentials", "Access-Control-Request-Headers", "Access-Control-Request-Method", "Origin", "Authorization"],
+        allow_headers=[
+            "Access-Control-Allow-Credentials",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Method",
+            "Origin",
+            "Authorization",
+        ],
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

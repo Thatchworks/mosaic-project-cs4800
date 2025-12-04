@@ -64,8 +64,8 @@ def test_get_gallery(db: Session) -> None:
     )
     project = crud.create_project(
         session=db,
-        project_in=ProjectCreate(
-            name="Test Project", client_name="Client", organization_id=org.id
+        project_in=_create_test_project_data(
+            organization_id=org.id, name="Test Project", client_name="Client"
         ),
     )
     gallery_in = GalleryCreate(
@@ -90,8 +90,8 @@ def test_update_gallery(db: Session) -> None:
     )
     project = crud.create_project(
         session=db,
-        project_in=ProjectCreate(
-            name="Test Project", client_name="Client", organization_id=org.id
+        project_in=_create_test_project_data(
+            organization_id=org.id, name="Test Project", client_name="Client"
         ),
     )
     gallery = crud.create_gallery(
@@ -123,8 +123,8 @@ def test_get_galleries_by_project(db: Session) -> None:
     )
     project = crud.create_project(
         session=db,
-        project_in=ProjectCreate(
-            name="Test Project", client_name="Client", organization_id=org.id
+        project_in=_create_test_project_data(
+            organization_id=org.id, name="Test Project", client_name="Client"
         ),
     )
 
@@ -155,8 +155,8 @@ def test_delete_gallery(db: Session) -> None:
     )
     project = crud.create_project(
         session=db,
-        project_in=ProjectCreate(
-            name="Test Project", client_name="Client", organization_id=org.id
+        project_in=_create_test_project_data(
+            organization_id=org.id, name="Test Project", client_name="Client"
         ),
     )
     gallery = crud.create_gallery(

@@ -512,10 +512,11 @@ def submit_gallery_for_review(
 
     # Update status
     from app.models import GalleryUpdate
+
     gallery = crud.update_gallery(
         session=session,
         db_gallery=gallery,
-        gallery_in=GalleryUpdate(status="pending_review")
+        gallery_in=GalleryUpdate(status="pending_review"),
     )
     return gallery
 
@@ -548,10 +549,9 @@ def approve_gallery(
 
     # Update status
     from app.models import GalleryUpdate
+
     gallery = crud.update_gallery(
-        session=session,
-        db_gallery=gallery,
-        gallery_in=GalleryUpdate(status="approved")
+        session=session, db_gallery=gallery, gallery_in=GalleryUpdate(status="approved")
     )
     return gallery
 
@@ -569,9 +569,7 @@ def request_gallery_changes(
     """
     user_type = getattr(current_user, "user_type", None)
     if user_type != "client":
-        raise HTTPException(
-            status_code=403, detail="Only clients can request changes"
-        )
+        raise HTTPException(status_code=403, detail="Only clients can request changes")
 
     gallery = crud.get_gallery(session=session, gallery_id=id)
     if not gallery:
@@ -585,21 +583,23 @@ def request_gallery_changes(
 
     # Create a comment with the requested changes
     from app.models import CommentCreate
+
     crud.create_comment(
         session=session,
         comment_in=CommentCreate(
             project_id=gallery.project_id,
-            content=f"[Gallery: {gallery.name}] Changes requested: {comment}"
+            content=f"[Gallery: {gallery.name}] Changes requested: {comment}",
         ),
-        user_id=current_user.id
+        user_id=current_user.id,
     )
 
     # Update status
     from app.models import GalleryUpdate
+
     gallery = crud.update_gallery(
         session=session,
         db_gallery=gallery,
-        gallery_in=GalleryUpdate(status="changes_requested")
+        gallery_in=GalleryUpdate(status="changes_requested"),
     )
 
     return {"message": "Changes requested successfully", "gallery": gallery}

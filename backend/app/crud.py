@@ -36,7 +36,8 @@ from app.models import (
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     try:
         db_obj = User.model_validate(
-            user_create, update={"hashed_password": get_password_hash(user_create.password)}
+            user_create,
+            update={"hashed_password": get_password_hash(user_create.password)},
         )
         session.add(db_obj)
         session.commit()
@@ -45,7 +46,8 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     except PendingRollbackError:
         session.rollback()
         db_obj = User.model_validate(
-            user_create, update={"hashed_password": get_password_hash(user_create.password)}
+            user_create,
+            update={"hashed_password": get_password_hash(user_create.password)},
         )
         session.add(db_obj)
         session.commit()
