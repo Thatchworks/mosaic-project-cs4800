@@ -25,60 +25,58 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile */}
-      <DrawerRoot
-        placement="start"
-        open={open}
-        onOpenChange={(e) => setOpen(e.open)}
-      >
-        <DrawerBackdrop />
-        <DrawerTrigger asChild>
-          <IconButton
-            variant="ghost"
-            color="inherit"
-            display={{ base: "flex", md: "none" }}
-            aria-label="Open Menu"
-            position="absolute"
-            zIndex="100"
-            m={4}
-          >
-            <FaBars />
-          </IconButton>
-        </DrawerTrigger>
-        <DrawerContent maxW="xs" bg="white">
-          <DrawerCloseTrigger />
-          <DrawerBody>
-            <Flex flexDir="column" justify="space-between">
-              <Box>
-                <SidebarItems onClose={() => setOpen(false)} />
-                <Flex
-                  as="button"
-                  onClick={() => {
-                    logout()
-                  }}
-                  alignItems="center"
-                  gap={4}
-                  px={4}
-                  py={2}
-                  color="#64748B"
-                  _hover={{
-                    bg: "#F1F5F9",
-                    color: "#1E3A8A",
-                  }}
-                >
-                  <FiLogOut />
-                  <Text>Log Out</Text>
-                </Flex>
-              </Box>
-              {currentUser?.email && (
-                <Text fontSize="sm" p={2} truncate maxW="sm" color="#64748B">
-                  Logged in as: {currentUser.email}
-                </Text>
-              )}
-            </Flex>
-          </DrawerBody>
-          <DrawerCloseTrigger />
-        </DrawerContent>
-      </DrawerRoot>
+      <Box display={{ base: "block", md: "none" }}>
+        <DrawerRoot
+          placement="start"
+          open={open}
+          onOpenChange={(e) => setOpen(e.open)}
+        >
+          <DrawerBackdrop />
+          <DrawerTrigger asChild>
+            <IconButton
+              variant="ghost"
+              color="inherit"
+              aria-label="Open Menu"
+              m={4}
+            >
+              <FaBars />
+            </IconButton>
+          </DrawerTrigger>
+          <DrawerContent maxW="xs" bg="white">
+            <DrawerCloseTrigger />
+            <DrawerBody>
+              <Flex flexDir="column" justify="space-between" h="full">
+                <Box>
+                  <SidebarItems onClose={() => setOpen(false)} />
+                  <Flex
+                    as="button"
+                    onClick={() => {
+                      logout()
+                    }}
+                    alignItems="center"
+                    gap={4}
+                    px={4}
+                    py={2}
+                    color="#64748B"
+                    _hover={{
+                      bg: "#F1F5F9",
+                      color: "#1E3A8A",
+                    }}
+                  >
+                    <FiLogOut />
+                    <Text>Log Out</Text>
+                  </Flex>
+                </Box>
+                {currentUser?.email && (
+                  <Text fontSize="sm" p={2} truncate maxW="sm" color="#64748B">
+                    Logged in as: {currentUser.email}
+                  </Text>
+                )}
+              </Flex>
+            </DrawerBody>
+          </DrawerContent>
+        </DrawerRoot>
+      </Box>
 
       {/* Desktop */}
       <Box

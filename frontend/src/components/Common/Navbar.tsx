@@ -42,7 +42,7 @@ function Navbar() {
             fontFamily="'Poppins', sans-serif"
             _hover={{ opacity: 0.9 }}
           >
-            MOSAIC
+            mosiac
           </Heading>
         </Flex>
       </Link>

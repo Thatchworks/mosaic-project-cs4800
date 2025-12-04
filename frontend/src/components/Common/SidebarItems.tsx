@@ -92,7 +92,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
 
   return (
     <>
-      <Text fontSize="xs" px={4} py={2} fontWeight="bold" color="#1E3A8A" letterSpacing="wide">
+      <Text fontSize="s" px={4} py={2} fontWeight="bold" color="#1E3A8A" letterSpacing="wide">
         MENU
       </Text>
       <Box>{listItems}</Box>
