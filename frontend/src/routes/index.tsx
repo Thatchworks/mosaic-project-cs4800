@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <Flex h="100vh" alignItems="center" justifyContent="center" bg="#F8FAFC">
+    <Flex h="100vh" alignItems="center" justifyContent="center" bg="linear-gradient(205deg, #E6AD50, #516FE5)">
       <Container maxW="6xl">
         <Flex direction="column" align="center" gap={8} py={20}>
           {/* Header */}
@@ -41,14 +41,12 @@ function LandingPage() {
               fontFamily="'Poppins', sans-serif"
               fontWeight="700"
             >
-              MOSAIC
+              mosiac
             </Heading>
             <Text fontSize="2xl" color="#64748B" fontWeight="500">
-              Photography Project Management
+              Photo projects managed in a snap
             </Text>
-            <Text fontSize="lg" color="#64748B" mt={2}>
-              Collaborate seamlessly on photography projects
-            </Text>
+            
           </Box>
 
           {/* Login Options */}
@@ -143,7 +141,7 @@ function LandingPage() {
                 </Heading>
                 <Text textAlign="center" color="#64748B">
                   View your projects, review galleries, and communicate with
-                  your photography team
+                  your photo team
                 </Text>
                 <RouterLink to="/client-login" style={{ width: "100%" }}>
                   <Button
