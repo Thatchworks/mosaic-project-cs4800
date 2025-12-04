@@ -9,7 +9,14 @@ else
     exit 1 # Exit with an error code
 fi
 
+git pull --ff
 
+if [ $? -eq 0 ]; then
+    echo "Git pull successful."
+else
+    echo "Git pull failed. Check the error messages above."
+    exit 1
+fi
 sudo docker compose -f docker-compose.yml stop
 if [ $? -ne 0 ]; then
     echo "Docker compose stop failed. Check the error messages above."
@@ -28,4 +35,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Docker containers updated successfully."
+echo "Docker containers updated and started successfully."
