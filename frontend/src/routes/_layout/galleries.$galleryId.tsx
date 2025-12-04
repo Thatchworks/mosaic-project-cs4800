@@ -369,7 +369,7 @@ function GalleryDetail() {
             <LuUpload />
           </Icon>
           <FileUpload.DropzoneContent textAlign="center">
-            <Box>Drag and drop files or click to upload photos</Box>
+            <Box >Drag and drop files or click to upload photos</Box>
             <Box color="fg.muted">.png, .jpg , etc.</Box>
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
@@ -404,7 +404,7 @@ function GalleryDetail() {
     }
 
     return (
-      <Flex gap={2}>
+      <Flex gap={2} flexDirection={{mdDown:"column", lg: "row"}}>
         <FileUpload.Trigger asChild>
           <Button> Choose files...</Button>
         </FileUpload.Trigger>
@@ -693,7 +693,7 @@ function GalleryDetail() {
             <>
               <Button onClick={onUploadOpen}><LuUpload /> Upload photos...</Button>
 
-              <DialogRoot size="lg"
+              <DialogRoot size={{mdDown: "cover", lg: "xl"}}
                 open={isUploadOpen}
                 onOpenChange={(e: { open: boolean }) => {
                   if (!e.open) {
