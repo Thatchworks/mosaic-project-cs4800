@@ -1,22 +1,14 @@
 import {
-  Badge,
-  Box,
-  Button,
-  Container,
-  Flex,
-  Grid,
-  Heading,
-  IconButton,
-  Input,
-  Stack,
-  Text,
-  useDisclosure,
+  Badge, Box, Button, Container,
+  Flex, Grid, Heading, IconButton, Input, Stack, Text,
+  useDisclosure, Icon, FileUpload, Float, useFileUploadContext
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import type React from "react"
 import { useRef, useState } from "react"
 import { FiArrowLeft, FiCalendar, FiImage, FiUser } from "react-icons/fi"
+import { LuUpload, LuFileImage, LuX } from "react-icons/lu"
 import { GalleriesService, OpenAPI, ProjectsService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -44,7 +36,7 @@ export const Route = createFileRoute("/_layout/galleries/$galleryId")({
         title: 'Project Gallery',
       },
     ],
-})
+  })
 })
 
 function getStatusColor(status: string) {
@@ -83,7 +75,6 @@ function GalleryDetail() {
   const { user } = useAuth()
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const {
     open: isConfirmAllOpen,
     onOpen: onConfirmAllOpen,
@@ -105,9 +96,9 @@ function GalleryDetail() {
   })
 
   // Set page title when gallery data is loaded
-    if (gallery) {
-      document.title = `${gallery.name}`
-    }
+  if (gallery) {
+    document.title = `${gallery.name}`
+  }
 
   // Fetch photos
   const { data: photosData, isLoading: isLoadingPhotos } = useQuery({
@@ -147,22 +138,21 @@ function GalleryDetail() {
   const MAX_PHOTOS = 20
 
   const uploadMutation = useMutation({
-    mutationFn: async (files: FileList) => {
+    mutationFn: async (files: File[]) => {
       // Check max photos before upload
       const currentCount = photosData?.count ?? gallery?.photo_count ?? 0
-      const filesToUpload = Array.from(files)
 
-      if (currentCount + filesToUpload.length > MAX_PHOTOS) {
+      if (currentCount + files.length > MAX_PHOTOS) {
         const remaining = MAX_PHOTOS - currentCount
         throw new Error(
-          `Cannot upload ${filesToUpload.length} photos. Gallery can only hold ${MAX_PHOTOS} photos total. ` +
-            `Currently has ${currentCount} photos. You can upload ${remaining > 0 ? remaining : 0} more photo${remaining !== 1 ? "s" : ""}. ` +
-            `Please try again with fewer photos.`,
+          `Cannot upload ${files.length} photos. Gallery can only hold ${MAX_PHOTOS} photos total. ` +
+          `Currently has ${currentCount} photos. You can upload ${remaining > 0 ? remaining : 0} more photo${remaining !== 1 ? "s" : ""}. ` +
+          `Please try again with fewer photos.`,
         )
       }
 
       const form = new FormData()
-      filesToUpload.forEach((f) => {
+      files.forEach((f) => {
         form.append("files", f)
       })
       const res = await fetch(
@@ -184,7 +174,6 @@ function GalleryDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gallery", galleryId] })
       queryClient.invalidateQueries({ queryKey: ["galleryPhotos", galleryId] })
-      if (fileInputRef.current) fileInputRef.current.value = ""
       showSuccessToast("Photos uploaded successfully!")
     },
     onError: (error: Error) => {
@@ -343,6 +332,63 @@ function GalleryDetail() {
   // Lightbox state for viewing photos larger with details & navigation
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+
+  const FileUploadList = () => {
+    const fileUpload = useFileUploadContext()
+    const files = fileUpload.acceptedFiles
+    if (files.length === 0) return null
+    return (
+      <FileUpload.ItemGroup>
+        {files.map((file) => (
+          <FileUpload.Item
+            w="auto"
+            boxSize="20"
+            p="2"
+            file={file}
+            key={file.name}
+          >
+            <FileUpload.ItemPreviewImage />
+            <Float placement="top-end">
+              <FileUpload.ItemDeleteTrigger boxSize="4" layerStyle="fill.solid">
+                <LuX />
+              </FileUpload.ItemDeleteTrigger>
+            </Float>
+          </FileUpload.Item>
+        ))}
+      </FileUpload.ItemGroup>
+    )
+  }
+
+  const UploadButton = () => {
+    const fileUpload = useFileUploadContext()
+    const hasFiles = fileUpload.acceptedFiles.length > 0
+
+    const handleUpload = () => {
+      if (fileUpload.acceptedFiles.length > 0) {
+        uploadMutation.mutate(fileUpload.acceptedFiles)
+        fileUpload.clearFiles()
+      }
+    }
+
+    return (
+      <Flex gap={2}>
+        <FileUpload.Trigger asChild>
+          <Button>
+            Select Photos
+          </Button>
+        </FileUpload.Trigger>
+        {hasFiles && (
+          <Button
+            colorScheme="blue"
+            onClick={handleUpload}
+            loading={uploadMutation.isPending}
+          >
+            Upload {fileUpload.acceptedFiles.length} Photo{fileUpload.acceptedFiles.length !== 1 ? 's' : ''}
+          </Button>
+        )}
+      </Flex>
+    )
+  }
 
   const openLightboxAt = (index: number) => {
     if (!photos || photos.length === 0) return
@@ -613,26 +659,10 @@ function GalleryDetail() {
             )}
           </Flex>
           {isTeamMember && (
-            <Box>
-              <Input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    uploadMutation.mutate(e.target.files)
-                  }
-                }}
-              />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                loading={uploadMutation.isPending}
-              >
-                Upload Photos
-              </Button>
-            </Box>
+            <FileUpload.Root maxFiles={MAX_PHOTOS} accept="image/*" multiple>
+              <FileUpload.HiddenInput />
+              <UploadButton />
+            </FileUpload.Root>
           )}
         </Flex>
 
@@ -853,9 +883,6 @@ function GalleryDetail() {
         </DialogRoot>
 
         <Box>
-          <Heading size="lg" mb={4}>
-            Photos
-          </Heading>
           {isLoadingPhotos ? (
             <Text>Loading photos...</Text>
           ) : photos.length > 0 ? (
@@ -936,26 +963,25 @@ function GalleryDetail() {
               )}
             </Grid>
           ) : (
-            <Box
-              p={12}
-              textAlign="center"
-              border="2px dashed #E2E8F0"
-              borderColor="#E2E8F0"
-              borderRadius="md"
-            >
-              <FiImage
-                size={48}
-                style={{ margin: "0 auto", color: "#64748B" }}
-              />
-              <Text mt={4} color="#64748B">
-                No photos in this gallery yet
-              </Text>
-              {isTeamMember && (
-                <Text mt={2} color="#64748B">
-                  You can upload up to 20 photos.
-                </Text>
-              )}
-            </Box>
+            <FileUpload.Root alignItems="stretch" maxFiles={MAX_PHOTOS} accept="image/*" multiple>
+              <FileUpload.HiddenInput />
+              <FileUpload.Dropzone>
+                <Icon size="md" color="fg.muted">
+                  <LuUpload />
+                </Icon>
+                <FileUpload.DropzoneContent>
+                  <Box>Drag and drop photos here</Box>
+                  <Box color="fg.muted">.png, .jpg , etc.</Box>
+                </FileUpload.DropzoneContent>
+              </FileUpload.Dropzone>
+              <FileUploadList />
+              <Flex gap={2} mt={3}>
+                <FileUpload.Trigger asChild>
+                  <Button>Select Photos</Button>
+                </FileUpload.Trigger>
+                <UploadButton />
+              </Flex>
+            </FileUpload.Root>
           )}
         </Box>
         {/* Approval History Timeline */}
