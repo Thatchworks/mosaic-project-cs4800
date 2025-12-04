@@ -120,10 +120,12 @@ function SignUp() {
       </Field>
 
       <Field label="Account Type">
-        <NativeSelectRoot>
+        <NativeSelectRoot variant="outline">
           <NativeSelectField
             {...register("user_type")}
             defaultValue="team_member"
+            className="light"
+            
           >
             <option value="team_member">Team Member</option>
             <option value="client">Client</option>
