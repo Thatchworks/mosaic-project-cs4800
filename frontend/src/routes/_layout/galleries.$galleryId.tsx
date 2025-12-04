@@ -1,6 +1,6 @@
 import {
   Badge, Box, Button, Container,
-  Flex, Grid, Heading, IconButton, Input, Stack, Text,
+  Flex, Grid, Heading, IconButton, Stack, Text,
   useDisclosure, Icon, FileUpload, Float, useFileUploadContext,
   DialogCloseTrigger,
   CloseButton,
@@ -12,7 +12,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import type React from "react"
 import { useRef, useState } from "react"
 import { FiArrowLeft, FiCalendar, FiImage, FiUser } from "react-icons/fi"
-import { LuUpload, LuFileImage, LuX, LuDownload, LuTrash, LuTrash2, LuShare } from "react-icons/lu"
+import { LuUpload, LuX, LuDownload, LuTrash, LuTrash2} from "react-icons/lu"
 import { GalleriesService, OpenAPI, ProjectsService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -1052,7 +1052,7 @@ function GalleryDetail() {
           <ApprovalHistory gallery={gallery} />
         )}
         {/* ActionBar: shows when one or more photos are selected */}
-        <ActionBar.Root open={anySelected} placement="bottom">
+        <ActionBar.Root open={anySelected} >
           <Portal>
             <ActionBar.Positioner>
               <ActionBar.Content>
