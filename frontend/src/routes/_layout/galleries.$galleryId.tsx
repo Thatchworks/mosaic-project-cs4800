@@ -80,6 +80,11 @@ function GalleryDetail() {
     onOpen: onConfirmAllOpen,
     onClose: onConfirmAllClose,
   } = useDisclosure()
+  const {
+    open: isUploadOpen,
+    onOpen: onUploadOpen,
+    onClose: onUploadClose,
+  } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement | null>(null)
 
   // Fetch gallery details
@@ -175,6 +180,12 @@ function GalleryDetail() {
       queryClient.invalidateQueries({ queryKey: ["gallery", galleryId] })
       queryClient.invalidateQueries({ queryKey: ["galleryPhotos", galleryId] })
       showSuccessToast("Photos uploaded successfully!")
+      // Close the upload dialog after successful upload
+      try {
+        onUploadClose()
+      } catch (e) {
+        // ignore if disclosure isn't available
+      }
     },
     onError: (error: Error) => {
       showErrorToast(error.message || "Failed to upload photos")
@@ -373,9 +384,7 @@ function GalleryDetail() {
     return (
       <Flex gap={2}>
         <FileUpload.Trigger asChild>
-          <Button>
-            Select Photos
-          </Button>
+          
         </FileUpload.Trigger>
         {hasFiles && (
           <Button
@@ -383,7 +392,7 @@ function GalleryDetail() {
             onClick={handleUpload}
             loading={uploadMutation.isPending}
           >
-            Upload {fileUpload.acceptedFiles.length} Photo{fileUpload.acceptedFiles.length !== 1 ? 's' : ''}
+            Upload {fileUpload.acceptedFiles.length} photo{fileUpload.acceptedFiles.length !== 1 ? 's' : ''}
           </Button>
         )}
       </Flex>
@@ -624,7 +633,7 @@ function GalleryDetail() {
                 onClick={() => submitForReviewMutation.mutate()}
                 loading={submitForReviewMutation.isPending}
               >
-                Submit for Review
+                Request gallery review
               </Button>
             )}
 
@@ -659,10 +668,46 @@ function GalleryDetail() {
             )}
           </Flex>
           {isTeamMember && (
-            <FileUpload.Root maxFiles={MAX_PHOTOS} accept="image/*" multiple>
-              <FileUpload.HiddenInput />
-              <UploadButton />
-            </FileUpload.Root>
+            <>
+              <Button onClick={onUploadOpen}>Upload photos...</Button>
+
+              <DialogRoot size="lg"
+                open={isUploadOpen}
+                onOpenChange={(e: { open: boolean }) => {
+                  if (!e.open) {
+                    onUploadClose()
+                  }
+                }}
+              >
+                <DialogContent >
+                  <DialogHeader>
+                    <DialogTitle>Upload photos...</DialogTitle>
+                  </DialogHeader>
+                  <DialogBody>
+                    <FileUpload.Root maxFiles={MAX_PHOTOS} accept="image/*">
+                      <FileUpload.HiddenInput />
+
+                      <FileUpload.Dropzone>
+                        <Icon size="md" color="fg.muted">
+                          <LuUpload />
+                        </Icon>
+                        <FileUpload.DropzoneContent>
+                          <Box>Drag and drop files or click to upload photos</Box>
+                          <Box color="fg.muted">.png, .jpg , etc.</Box>
+                        </FileUpload.DropzoneContent>
+                      </FileUpload.Dropzone>
+
+                      <FileUploadList />
+
+                      <Flex gap={2} mt={3} justifyContent="flex-end">
+                        <UploadButton />
+                        <Button onClick={onUploadClose}>Cancel</Button>
+                      </Flex>
+                    </FileUpload.Root>
+                  </DialogBody>
+                </DialogContent>
+              </DialogRoot>
+            </>
           )}
         </Flex>
 
@@ -679,7 +724,7 @@ function GalleryDetail() {
               <DialogTitle>Download all photos</DialogTitle>
             </DialogHeader>
             <DialogBody>
-              Do you agree to download all photos in this project gallery?
+              Do you want to download all photos in this project gallery?
             </DialogBody>
             <DialogFooter>
               <Button ref={cancelRef} onClick={onConfirmAllClose}>
@@ -953,35 +998,36 @@ function GalleryDetail() {
                         checked={!!selected[p.id]}
                         onCheckedChange={() => {
                           onSelectToggle(p.id)
-                        }}
-                      >
-                        Select
-                      </Checkbox>
+                        
+                        }} variant="subtle"
+                        colorPalette="blue"
+                      >                      </Checkbox>
                     </Box>
                   </Box>
                 ),
               )}
             </Grid>
           ) : (
-            <FileUpload.Root alignItems="stretch" maxFiles={MAX_PHOTOS} accept="image/*" multiple>
-              <FileUpload.HiddenInput />
-              <FileUpload.Dropzone>
-                <Icon size="md" color="fg.muted">
-                  <LuUpload />
-                </Icon>
-                <FileUpload.DropzoneContent>
-                  <Box>Drag and drop photos here</Box>
-                  <Box color="fg.muted">.png, .jpg , etc.</Box>
-                </FileUpload.DropzoneContent>
-              </FileUpload.Dropzone>
-              <FileUploadList />
-              <Flex gap={2} mt={3}>
-                <FileUpload.Trigger asChild>
-                  <Button>Select Photos</Button>
-                </FileUpload.Trigger>
-                <UploadButton />
-              </Flex>
-            </FileUpload.Root>
+            <Box
+              p={12}
+              textAlign="center"
+              border="2px dashed #E2E8F0"
+              borderColor="#E2E8F0"
+              borderRadius="md"
+            >
+              <FiImage
+                size={48}
+                style={{ margin: "0 auto", color: "#64748B" }}
+              />
+              <Text mt={4} color="#64748B">
+                No photos in this gallery yet
+              </Text>
+              {isTeamMember && (
+                <Text mt={2} color="#64748B">
+                  You can upload up to 20 photos.
+                </Text>
+              )}
+            </Box>
           )}
         </Box>
         {/* Approval History Timeline */}
