@@ -1,4 +1,4 @@
-import { Box, Flex, Icon, Text } from "@chakra-ui/react"
+import { Box, Icon, Text } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
 import {
@@ -6,12 +6,15 @@ import {
   FiFolder,
   FiHome,
   FiImage,
+  FiLogOut,
   FiSettings,
   FiUsers,
 } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
+import { Button } from "@/components/ui/button"
 import type { UserPublic } from "@/client"
+import useAuth from "@/hooks/useAuth"
 
 const items = [
   { icon: FiHome, title: "Dashboard", path: "/dashboard" },
@@ -42,6 +45,7 @@ interface Item {
 const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
+  const { logout } = useAuth()
 
   // Check if user has organization (clients always have access, team members need org)
   const hasOrganization =
@@ -66,11 +70,13 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
 
   const listItems = finalItems.map(({ icon, title, path }) => (
     <RouterLink key={title} to={path} onClick={onClose}>
-      <Flex
+      <Button
+        variant="ghost"
+        w="100%"
+        justifyContent="flex-start"
         gap={4}
         px={4}
         py={2}
-        borderRadius="md"
         color="#64748B"
         _hover={{
           background: "#F1F5F9",
@@ -80,13 +86,11 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
           background: "#DBEAFE",
           color: "#1E3A8A",
         }}
-        alignItems="center"
         fontSize="sm"
-        transition="all 0.2s"
       >
-        <Icon as={icon} alignSelf="center" />
-        <Text ml={2} fontWeight="500">{title}</Text>
-      </Flex>
+        <Icon as={icon} />
+        <Text fontWeight="500">{title}</Text>
+      </Button>
     </RouterLink>
   ))
 
@@ -95,7 +99,30 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
       <Text fontSize="s" px={4} py={2} fontWeight="bold" color="#1E3A8A" letterSpacing="wide">
         MENU
       </Text>
-      <Box>{listItems}</Box>
+      <Box>
+        {listItems}
+        <Button
+          variant="ghost"
+          w="100%"
+          justifyContent="flex-start"
+          onClick={() => {
+            logout()
+            onClose?.()
+          }}
+          gap={4}
+          px={4}
+          py={2}
+          color="#64748B"
+          _hover={{
+            background: "#F1F5F9",
+            color: "#1E3A8A",
+          }}
+          fontSize="sm"
+        >
+          <Icon as={FiLogOut} />
+          <Text fontWeight="500">Log Out</Text>
+        </Button>
+      </Box>
     </>
   )
 }

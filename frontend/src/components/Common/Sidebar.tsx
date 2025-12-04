@@ -1,11 +1,9 @@
-import { Box, Flex, IconButton, Text } from "@chakra-ui/react"
+import { Box, Flex, IconButton, Text, Heading } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { FaBars } from "react-icons/fa"
-import { FiLogOut } from "react-icons/fi"
 
 import type { UserPublic } from "@/client"
-import useAuth from "@/hooks/useAuth"
 import {
   DrawerBackdrop,
   DrawerBody,
@@ -19,17 +17,17 @@ import SidebarItems from "./SidebarItems"
 const Sidebar = () => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const { logout } = useAuth()
   const [open, setOpen] = useState(false)
 
   return (
     <>
       {/* Mobile */}
-      <Box display={{ base: "block", md: "none" }}>
+      <Box display={{ base: "block", lg: "none" }}>
         <DrawerRoot
           placement="start"
           open={open}
           onOpenChange={(e) => setOpen(e.open)}
+          size={"full"}
         >
           <DrawerBackdrop />
           <DrawerTrigger asChild>
@@ -47,25 +45,10 @@ const Sidebar = () => {
             <DrawerBody>
               <Flex flexDir="column" justify="space-between" h="full">
                 <Box>
+                  <Heading size="2xl" mb={4} px={4} pt={4}>
+                    mosaic
+                  </Heading>
                   <SidebarItems onClose={() => setOpen(false)} />
-                  <Flex
-                    as="button"
-                    onClick={() => {
-                      logout()
-                    }}
-                    alignItems="center"
-                    gap={4}
-                    px={4}
-                    py={2}
-                    color="#64748B"
-                    _hover={{
-                      bg: "#F1F5F9",
-                      color: "#1E3A8A",
-                    }}
-                  >
-                    <FiLogOut />
-                    <Text>Log Out</Text>
-                  </Flex>
                 </Box>
                 {currentUser?.email && (
                   <Text fontSize="sm" p={2} truncate maxW="sm" color="#64748B">
@@ -80,12 +63,12 @@ const Sidebar = () => {
 
       {/* Desktop */}
       <Box
-        display={{ base: "none", md: "flex" }}
+        display={{ base: "none", lg: "flex" }}
         position="sticky"
         bg="white"
         borderRight="1px solid #E2E8F0"
         top={0}
-        minW="xs"
+        maxW="xs"
         h="100vh"
         p={4}
       >
