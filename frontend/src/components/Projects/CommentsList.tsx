@@ -12,6 +12,7 @@ import {
   Timeline,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { format, formatDistanceToNow } from "date-fns"
 import { useForm } from "react-hook-form"
 import {
   FiAlertCircle,
@@ -21,6 +22,7 @@ import {
   FiUser,
 } from "react-icons/fi"
 import { Field } from "@/components/ui/field"
+import { Tooltip } from "@/components/ui/tooltip.tsx"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 
@@ -226,16 +228,13 @@ export function CommentsList({ projectId }: CommentsListProps) {
                     ? "requested changes"
                     : "commented"
 
-              const createdAt = new Date(`${comment.created_at}Z`).toLocaleString(
-                "en-US",
-                {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                },
-              )
+              const createdAtDate = new Date(`${comment.created_at}Z`)
+              const createdAtRelative = Number.isNaN(createdAtDate.getTime())
+                ? ""
+                : formatDistanceToNow(createdAtDate, { addSuffix: true })
+              const createdAtFull = Number.isNaN(createdAtDate.getTime())
+                ? ""
+                : format(createdAtDate, "PPpp")
 
               return (
                 <Timeline.Item key={comment.id}>
@@ -265,7 +264,9 @@ export function CommentsList({ projectId }: CommentsListProps) {
                         {activity.kind === "changes_requested" && activity.targetLabel ? (
                           <Span fontWeight="medium">{activity.targetLabel}</Span>
                         ) : null}
-                        <Span color="#64748B">on {createdAt}</Span>
+                        <Tooltip content={createdAtFull}>
+                          <Span color="#64748B">on {createdAtRelative}</Span>
+                        </Tooltip>
 
                         {currentUser?.id === comment.user_id && (
                           <Button
