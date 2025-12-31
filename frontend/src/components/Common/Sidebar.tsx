@@ -64,12 +64,10 @@ const Sidebar = () => {
       {/* Desktop */}
       <Box
         display={{ base: "none", lg: "flex" }}
-        position="sticky"
         bg="white"
         borderRight="1px solid #E2E8F0"
-        top={0}
         maxW="xs"
-        h="100vh"
+        h="full"
         p={4}
       >
         <Box w="100%">
