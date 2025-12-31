@@ -160,7 +160,6 @@ function ProjectDetail() {
                   <>
                     <EditProject project={project} />
                     <DeleteProject project={project} />
-                    <InviteClient projectId={projectId} />
                   </>
                 )}
                 <Badge
@@ -397,7 +396,7 @@ function ProjectDetail() {
                         transition="all 0.2s"
                       >
                         <Flex alignItems="center" gap={2}>
-                          <FiImage color="#1E40AF" />
+                          <FiImage color="#98a4cdff" />
                           <Text fontSize="sm" color="#1E293B">View Gallery</Text>
                         </Flex>
                       </Box>
@@ -420,23 +419,7 @@ function ProjectDetail() {
                   <Box borderWidth="1px" borderColor="#E2E8F0" borderRadius="md" bg="white">
                     <AddComment projectId={projectId} />
                   </Box>
-                  {currentUser?.user_type === "team_member" && (
-                    <Box
-                      p={3}
-                      borderWidth="1px"
-                      borderColor="#E2E8F0"
-                      borderRadius="md"
-                      cursor="pointer"
-                      bg="white"
-                      _hover={{ bg: "#F8FAFC", borderColor: "#1E3A8A" }}
-                      transition="all 0.2s"
-                    >
-                      <Flex alignItems="center" gap={2}>
-                        <FiUsers color="#1E40AF" />
-                        <Text fontSize="sm" color="#1E293B">Manage Team</Text>
-                      </Flex>
-                    </Box>
-                  )}
+                  
                 </Stack>
               </Card.Body>
             </Card.Root>

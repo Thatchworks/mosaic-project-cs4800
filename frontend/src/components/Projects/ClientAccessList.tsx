@@ -1,8 +1,9 @@
-import { Box, Card, Flex, Heading, Stack, Text } from "@chakra-ui/react"
+import { Box, Card, Flex, Float, Heading, Stack, Text } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { FiTrash2, FiUser } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
 import useCustomToast from "@/hooks/useCustomToast"
+import { InviteClient } from "./InviteClient"
 
 interface ClientAccessListProps {
   projectId: string
@@ -79,8 +80,10 @@ export function ClientAccessList({
         <Card.Header>
           <Heading size="md" color="#1E3A8A" fontFamily="'Poppins', sans-serif">Invited Clients</Heading>
         </Card.Header>
+
         <Card.Body>
           <Text color="#64748B">No clients invited yet</Text>
+          <InviteClient projectId={projectId} />
         </Card.Body>
       </Card.Root>
     )
@@ -89,7 +92,9 @@ export function ClientAccessList({
   return (
     <Card.Root bg="white" borderColor="#E2E8F0" borderWidth="1px">
       <Card.Header>
-        <Heading size="md" color="#1E3A8A" fontFamily="'Poppins', sans-serif">Invited Clients</Heading>
+        <Heading size="lg" color="#1E3A8A" fontFamily="'Poppins', sans-serif">
+        <Flex justify="space-between" direction={"row"}>Clients <InviteClient projectId={projectId} /> </Flex>
+        </Heading>
       </Card.Header>
       <Card.Body>
         <Stack gap={3}>
