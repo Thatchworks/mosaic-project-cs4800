@@ -27,7 +27,7 @@ const items = [
     requiresOrg: true,
     teamOnly: true,
   },
-  { icon: FiSettings, title: "User Settings", path: "/settings" },
+  { icon: FiSettings, title: "Profile", path: "/settings" },
 ]
 
 interface SidebarItemsProps {
@@ -40,6 +40,7 @@ interface Item {
   path: string
   requiresOrg?: boolean
   teamOnly?: boolean
+  adminOnly?: boolean// TODO: Add admin to rest of items flow instead of another check. leaving this here to facilitate for future
 }
 
 const SidebarItems = ({ onClose }: SidebarItemsProps) => {
@@ -60,11 +61,12 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     return true
   })
 
+  // TODO: Remove this extra check for admin and integrate it into existing flow
   // Add admin page for superusers
   if (currentUser?.is_superuser) {
     finalItems = [
       ...finalItems,
-      { icon: FiUsers, title: "Admin", path: "/admin" },
+      { icon: FiUsers, title: "User Administration", path: "/admin" },
     ]
   }
 

@@ -28,7 +28,6 @@ import { ClientAccessList } from "@/components/Projects/ClientAccessList"
 import { CommentsList } from "@/components/Projects/CommentsList"
 import { DeleteProject } from "@/components/Projects/DeleteProject"
 import { EditProject } from "@/components/Projects/EditProject"
-import { InviteClient } from "@/components/Projects/InviteClient"
 import { ProjectTimeline } from "@/components/Projects/ProjectTimeline"
 import useAuth from "@/hooks/useAuth"
 
@@ -250,7 +249,7 @@ function ProjectDetail() {
             {/* Project Details */}
             <Card.Root bg="white" borderColor="#E2E8F0" borderWidth="1px">
               <Card.Header>
-                <Heading size="lg" color="#1E3A8A" fontFamily="'Poppins', sans-serif">Project Details</Heading>
+                <Heading size="lg" color="#1E3A8A" fontFamily="'Poppins', sans-serif">Overview</Heading>
               </Card.Header>
               <Card.Body>
                 <Stack gap={4}>
