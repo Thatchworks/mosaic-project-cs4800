@@ -13,7 +13,13 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
-import { FiMessageSquare, FiTrash2, FiUser } from "react-icons/fi"
+import {
+  FiAlertCircle,
+  FiImage,
+  FiMessageSquare,
+  FiTrash2,
+  FiUser,
+} from "react-icons/fi"
 import { Field } from "@/components/ui/field"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
@@ -24,6 +30,40 @@ interface CommentsListProps {
 
 interface CommentFormData {
   content: string
+}
+
+type ActivityKind = "page" | "photo" | "changes_requested"
+
+const photoCommentRegex = /^\[Photo:\s*([^\]]+)\]\s*(.*)$/s
+const changesRequestedRegex =
+  /^\[Gallery:\s*([^\]]+)\]\s*Changes requested:\s*(.*)$/s
+
+function parseCommentToActivity(content: string): {
+  kind: ActivityKind
+  targetLabel?: string
+  body: string
+} {
+  const photoMatch = content.match(photoCommentRegex)
+  if (photoMatch) {
+    const [, photoName, body] = photoMatch
+    return {
+      kind: "photo",
+      targetLabel: photoName.trim(),
+      body: (body || "").trim(),
+    }
+  }
+
+  const changesMatch = content.match(changesRequestedRegex)
+  if (changesMatch) {
+    const [, galleryLabel, body] = changesMatch
+    return {
+      kind: "changes_requested",
+      targetLabel: galleryLabel.trim(),
+      body: (body || "").trim(),
+    }
+  }
+
+  return { kind: "page", body: content.trim() }
 }
 
 export function CommentsList({ projectId }: CommentsListProps) {
@@ -168,6 +208,24 @@ export function CommentsList({ projectId }: CommentsListProps) {
               const author =
                 comment.user?.full_name || comment.user?.email || "Unknown User"
 
+              const activity = parseCommentToActivity(comment.content || "")
+
+              const indicatorIcon =
+                activity.kind === "photo" ? (
+                  <FiImage />
+                ) : activity.kind === "changes_requested" ? (
+                  <FiAlertCircle />
+                ) : (
+                  <FiMessageSquare />
+                )
+
+              const actionText =
+                activity.kind === "photo"
+                  ? "commented on"
+                  : activity.kind === "changes_requested"
+                    ? "requested changes"
+                    : "commented"
+
               const createdAt = new Date(`${comment.created_at}Z`).toLocaleString(
                 "en-US",
                 {
@@ -185,38 +243,48 @@ export function CommentsList({ projectId }: CommentsListProps) {
                     <Timeline.Separator />
                     <Timeline.Indicator>
                       <Icon fontSize="xs">
-                        <FiMessageSquare />
+                        {indicatorIcon}
                       </Icon>
                     </Timeline.Indicator>
                   </Timeline.Connector>
                   <Timeline.Content gap="3">
                     <Timeline.Title>
-                      <Avatar.Root size="2xs">
-                        <Avatar.Fallback name={author}>
-                          <FiUser />
-                        </Avatar.Fallback>
-                      </Avatar.Root>
-                      <Span fontWeight="medium" color="#1E3A8A">{author}</Span>
-                      <Span color="#64748B">commented</Span>
-                      <Span color="#64748B">on {createdAt}</Span>
+                      <Flex align="center" gap={2} wrap="wrap">
+                        <Avatar.Root size="2xs">
+                          <Avatar.Fallback name={author}>
+                            <FiUser />
+                          </Avatar.Fallback>
+                        </Avatar.Root>
+                        <Span fontWeight="medium" color="#12151dff">
+                          {author}
+                        </Span>
+                        <Span color="#64748B">{actionText}</Span>
+                        {activity.kind === "photo" && activity.targetLabel ? (
+                          <Span fontWeight="medium">Photo: {activity.targetLabel}</Span>
+                        ) : null}
+                        {activity.kind === "changes_requested" && activity.targetLabel ? (
+                          <Span fontWeight="medium">{activity.targetLabel}</Span>
+                        ) : null}
+                        <Span color="#64748B">on {createdAt}</Span>
 
-                      {currentUser?.id === comment.user_id && (
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorPalette="red"
-                          onClick={() => deleteMutation.mutate(comment.id)}
-                          loading={deleteMutation.isPending}
-                          ml="auto"
-                        >
-                          <FiTrash2 size={14} />
-                        </Button>
-                      )}
+                        {currentUser?.id === comment.user_id && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            colorPalette="red"
+                            onClick={() => deleteMutation.mutate(comment.id)}
+                            loading={deleteMutation.isPending}
+                            ml="auto"
+                          >
+                            <FiTrash2 size={14} />
+                          </Button>
+                        )}
+                      </Flex>
                     </Timeline.Title>
                     <Card.Root size="sm" bg="white" borderColor="#E2E8F0" borderWidth="1px">
                       <Card.Body>
                         <Text fontSize="sm" color="#1E293B">
-                          {comment.content}
+                          {activity.body}
                         </Text>
                       </Card.Body>
                     </Card.Root>
